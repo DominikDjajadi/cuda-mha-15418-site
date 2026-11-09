@@ -1,1 +1,66 @@
-<-- Blank for now -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CMU 15-418/618 CUDA multi-head attention project.">
+  <title>CUDA Optimization of Multi-Head Attention</title>
+  <style>
+    :root { --ink:#263342; --muted:#5c6877; --line:#dce3ea; --accent:#176995; --soft:#f3f7fa; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#fff; color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { width:min(800px,calc(100% - 40px)); margin:auto; padding:60px 0 65px; }
+    header { padding-bottom:28px; border-bottom:2px solid var(--line); }
+    .eyebrow { color:var(--accent); font-size:.82rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { font-size:clamp(2rem,5vw,3rem); letter-spacing:-.04em; line-height:1.2; margin:12px 0; }
+    .byline { color:var(--muted); margin:0; }
+    section { margin-top:34px; }
+    h2 { font-size:1.2rem; margin:0 0 8px; }
+    p { margin:0 0 12px; }
+    li { margin:7px 0; }
+    .note { background:var(--soft); padding:14px 18px; border-left:3px solid var(--accent); }
+    .status { display:inline-block; margin-top:14px; border:1px solid var(--line); background:var(--soft); padding:3px 12px; border-radius:25px; font-size:.83rem; }
+    a { color:var(--accent); }
+    footer { color:var(--muted); font-size:.9rem; border-top:1px solid var(--line); margin-top:44px; padding-top:14px; }
+  </style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Carnegie Mellon University · 15-418/618 · Fall 2026</div>
+  <h1>CUDA Optimization of Multi-Head Attention</h1>
+  <p class="byline">Dominik Djajadi · Individual project</p>
+  <span class="status">Status: Proposal preparation</span>
+</header>
+<section>
+  <h2>Overview</h2>
+  <p>This project investigates the performance of a complete multi-head attention (MHA) forward pass implemented in CUDA C++. It focuses on how communication, memory traffic, and the distribution of work across and within attention heads influence GPU performance.</p>
+  <p>Starting with a straightforward FP32 implementation, the project will use profiling to guide optimizations and measure improvements in end-to-end layer performance.</p>
+</section>
+<section>
+  <h2>Planned approach</h2>
+  <ul>
+    <li>Implement and validate the complete forward pass with custom CUDA kernels.</li>
+    <li>Profile memory behavior, reductions, and work distribution to identify bottlenecks.</li>
+    <li>Investigate optimizations such as improved locality, warp-level reductions, tiling, and selected kernel fusion.</li>
+    <li>Compare baseline, intermediate, and optimized implementations against a PyTorch reference.</li>
+  </ul>
+  <p class="note">More extensive fusion, online softmax, causal masking, and mixed precision are possible stretch goals.</p>
+</section>
+<section>
+  <h2>Progress</h2>
+  <ul>
+    <li><strong>November 9:</strong> Project proposal preparation.</li>
+    <li><strong>November 23:</strong> Planned milestone — correct CUDA baseline and initial profiling.</li>
+    <li><strong>December 10:</strong> Planned final evaluation and report.</li>
+  </ul>
+  <p>Updates and findings will be added as development progresses.</p>
+</section>
+<section>
+  <h2>Documents</h2>
+  <p><a href="proposal.pdf">Project proposal (PDF)</a></p>
+</section>
+<footer>CMU 15-418/618 · Public project updates. Implementation is maintained separately in a private repository.</footer>
+</main>
+</body>
+</html>
