@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -6,61 +7,278 @@
   <meta name="description" content="CMU 15-418/618 CUDA multi-head attention project.">
   <title>CUDA Optimization of Multi-Head Attention</title>
   <style>
-    :root { --ink:#263342; --muted:#5c6877; --line:#dce3ea; --accent:#176995; --soft:#f3f7fa; }
+    :root {
+      --ink:#263342;
+      --muted:#5c6877;
+      --line:#dce3ea;
+      --accent:#176995;
+      --soft:#f3f7fa;
+    }
     * { box-sizing:border-box; }
-    body { margin:0; background:#fff; color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
-    main { width:min(800px,calc(100% - 40px)); margin:auto; padding:60px 0 65px; }
-    header { padding-bottom:28px; border-bottom:2px solid var(--line); }
-    .eyebrow { color:var(--accent); font-size:.82rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-    h1 { font-size:clamp(2rem,5vw,3rem); letter-spacing:-.04em; line-height:1.2; margin:12px 0; }
+    body {
+      margin:0;
+      background:#fff;
+      color:var(--ink);
+      font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+    main {
+      width:min(800px,calc(100% - 40px));
+      margin:auto;
+      padding:60px 0 65px;
+    }
+    header {
+      padding-bottom:28px;
+      border-bottom:2px solid var(--line);
+    }
+    .eyebrow {
+      color:var(--accent);
+      font-size:.82rem;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    h1 {
+      font-size:clamp(2rem,5vw,3rem);
+      letter-spacing:-.04em;
+      line-height:1.2;
+      margin:12px 0;
+    }
     .byline { color:var(--muted); margin:0; }
     section { margin-top:34px; }
     h2 { font-size:1.2rem; margin:0 0 8px; }
     p { margin:0 0 12px; }
     li { margin:7px 0; }
-    .note { background:var(--soft); padding:14px 18px; border-left:3px solid var(--accent); }
-    .status { display:inline-block; margin-top:14px; border:1px solid var(--line); background:var(--soft); padding:3px 12px; border-radius:25px; font-size:.83rem; }
     a { color:var(--accent); }
-    footer { color:var(--muted); font-size:.9rem; border-top:1px solid var(--line); margin-top:44px; padding-top:14px; }
+    .status {
+      display:inline-block;
+      margin-top:14px;
+      border:1px solid var(--line);
+      background:var(--soft);
+      padding:3px 12px;
+      border-radius:25px;
+      font-size:.83rem;
+    }
+    .note {
+      background:var(--soft);
+      padding:14px 18px;
+      border-left:3px solid var(--accent);
+    }
+    .table-wrap { overflow-x:auto; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; font-size:.92rem; }
+    th, td {
+      text-align:left;
+      padding:9px 11px;
+      border-bottom:1px solid var(--line);
+    }
+    th { background:var(--soft); }
+    .num { text-align:right; font-variant-numeric:tabular-nums; }
+    footer {
+      color:var(--muted);
+      font-size:.9rem;
+      border-top:1px solid var(--line);
+      margin-top:44px;
+      padding-top:14px;
+    }
   </style>
 </head>
 <body>
 <main>
-<header>
-  <div class="eyebrow">Carnegie Mellon University · 15-418/618 · Fall 2026</div>
-  <h1>CUDA Optimization of Multi-Head Attention</h1>
-  <p class="byline">Dominik Djajadi · Individual project</p>
-  <span class="status">Status: Proposal preparation</span>
-</header>
-<section>
-  <h2>Overview</h2>
-  <p>This project investigates the performance of a complete multi-head attention (MHA) forward pass implemented in CUDA C++. It focuses on how communication, memory traffic, and the distribution of work across and within attention heads influence GPU performance.</p>
-  <p>Starting with a straightforward FP32 implementation, the project will use profiling to guide optimizations and measure improvements in end-to-end layer performance.</p>
-</section>
-<section>
-  <h2>Planned approach</h2>
-  <ul>
-    <li>Implement and validate the complete forward pass with custom CUDA kernels.</li>
-    <li>Profile memory behavior, reductions, and work distribution to identify bottlenecks.</li>
-    <li>Investigate optimizations such as improved locality, warp-level reductions, tiling, and selected kernel fusion.</li>
-    <li>Compare baseline, intermediate, and optimized implementations against a PyTorch reference.</li>
-  </ul>
-  <p class="note">More extensive fusion, online softmax, causal masking, and mixed precision are possible stretch goals.</p>
-</section>
-<section>
-  <h2>Progress</h2>
-  <ul>
-    <li><strong>November 9:</strong> Project proposal preparation.</li>
-    <li><strong>November 23:</strong> Planned milestone — correct CUDA baseline and initial profiling.</li>
-    <li><strong>December 10:</strong> Planned final evaluation and report.</li>
-  </ul>
-  <p>Updates and findings will be added as development progresses.</p>
-</section>
-<section>
-  <h2>Documents</h2>
-  <p><a href="15_418_Project_Proposal (1).pdf">Project proposal (PDF)</a></p>
-</section>
-<footer>CMU 15-418/618 · Public project updates. Implementation is maintained separately in a private repository.</footer>
+  <header>
+    <div class="eyebrow">
+      Carnegie Mellon University · 15-418/618 · Fall 2026
+    </div>
+    <h1>CUDA Optimization of Multi-Head Attention</h1>
+    <p class="byline">Dominik Djajadi · Individual project</p>
+    <span class="status">
+      Status: Baseline complete · Optimization in progress
+    </span>
+  </header>
+
+  <section>
+    <h2>Overview</h2>
+    <p>
+      This project investigates the performance of a complete
+      multi-head attention (MHA) forward pass implemented in CUDA C++.
+      The focus is on communication, memory traffic, and the
+      distribution of work across and within attention heads.
+    </p>
+    <p>
+      Starting with a straightforward FP32 implementation, the project
+      uses profiling to guide optimizations and measures improvements
+      in end-to-end layer performance.
+    </p>
+  </section>
+
+  <section>
+    <h2>Milestone Progress — November 23</h2>
+    <p>
+      The complete naive MHA forward pass is implemented, including
+      Q/K/V projections, scaled dot-product attention, head packing
+      and concatenation, and the final output projection.
+      The implementation uses custom CUDA kernels and has passed
+      correctness tests against an independent CPU reference across
+      eight configurations.
+    </p>
+    <p>
+      Initial end-to-end benchmarks and Nsight Systems profiling
+      have also been completed on an NVIDIA GeForce RTX 2080.
+      The main performance concern identified so far is the
+      one-thread-per-row softmax implementation.
+    </p>
+    <p class="note">
+      At N=512, D=256, H=8, the baseline median forward-pass time
+      was 6.4151 ms. Softmax accounted for 65.4% of measured
+      GPU kernel execution time.
+    </p>
+  </section>
+
+  <section>
+    <h2>Preliminary Performance</h2>
+    <p>
+      End-to-end forward-pass measurements for the naive CUDA
+      implementation are shown below. Times include internal
+      allocations and kernel launches but exclude input and
+      output transfers between host and device.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="num">N</th>
+            <th class="num">D</th>
+            <th class="num">H</th>
+            <th class="num">Median (ms)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">64</td><td class="num">64</td><td class="num">4</td><td class="num">0.1785</td></tr>
+          <tr><td class="num">128</td><td class="num">128</td><td class="num">4</td><td class="num">0.3657</td></tr>
+          <tr><td class="num">256</td><td class="num">256</td><td class="num">8</td><td class="num">2.6192</td></tr>
+          <tr><td class="num">512</td><td class="num">256</td><td class="num">8</td><td class="num">6.4151</td></tr>
+          <tr><td class="num">1024</td><td class="num">256</td><td class="num">8</td><td class="num">12.6969</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Each configuration was measured over 20 runs after five
+      warmup executions. These measurements establish the baseline
+      for subsequent optimization comparisons.
+    </p>
+  </section>
+
+  <section>
+    <h2>Revised Optimization Plan</h2>
+    <ol>
+      <li>
+        <strong>Parallel softmax:</strong>
+        Replace one-thread-per-row processing with cooperative
+        warp- or block-level reductions.
+      </li>
+      <li>
+        <strong>Head-level parallelism:</strong>
+        Investigate concurrent processing across attention heads.
+      </li>
+      <li>
+        <strong>Profiling:</strong>
+        Remeasure the implementation and identify new bottlenecks.
+      </li>
+      <li>
+        <strong>Shared-memory matrix multiplication:</strong>
+        Investigate tiling and data reuse in the GEMM kernels.
+      </li>
+      <li>
+        <strong>Memory layout:</strong>
+        Evaluate packing, unpacking, and intermediate data movement.
+      </li>
+    </ol>
+    <p class="note">
+      Selective kernel fusion and FlashAttention-style online
+      softmax remain stretch goals.
+    </p>
+  </section>
+
+  <section>
+    <h2>Updated Schedule</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Dates</th><th>Planned Work</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Nov 24–26</td>
+            <td>Parallel softmax implementation and evaluation</td>
+          </tr>
+          <tr>
+            <td>Nov 27–29</td>
+            <td>Head-level parallelism and reprofiling</td>
+          </tr>
+          <tr>
+            <td>Nov 30–Dec 3</td>
+            <td>Shared-memory GEMM optimization</td>
+          </tr>
+          <tr>
+            <td>Dec 4–6</td>
+            <td>Memory layout and data movement investigation</td>
+          </tr>
+          <tr>
+            <td>Dec 7–8</td>
+            <td>Controlled benchmarks and optional fusion experiments</td>
+          </tr>
+          <tr>
+            <td>Dec 9–10</td>
+            <td>Final evaluation, report, and poster preparation</td>
+          </tr>
+          <tr>
+            <td>Dec 11</td>
+            <td>Poster session</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      All work is assigned to Dominik Djajadi. Correctness testing
+      and performance evaluation will follow each optimization.
+    </p>
+  </section>
+
+  <section>
+    <h2>Evaluation Goals</h2>
+    <p>
+      The primary objective is to achieve substantial performance
+      improvements over the naive CUDA baseline and explain
+      the parallel programming tradeoffs behind those changes.
+      PyTorch will serve as an additional optimized reference,
+      rather than a performance target that must be surpassed.
+    </p>
+    <p>
+      Final comparisons will emphasize end-to-end runtime,
+      component-level profiling, sequence-length scaling,
+      and the effects of work distribution and memory reuse.
+    </p>
+  </section>
+
+  <section>
+    <h2>Documents</h2>
+    <ul>
+      <li>
+        <a href="15_418_Project_Proposal%20(1).pdf">
+          Project Proposal (PDF)
+        </a>
+      </li>
+      <li>
+        <a href="MHA_Milestone_Report.pdf">
+          November 23 Milestone Report (PDF)
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <footer>
+    CMU 15-418/618 · Fall 2026 ·
+    Public project updates. Implementation maintained separately
+    in a private repository.
+  </footer>
 </main>
 </body>
 </html>
